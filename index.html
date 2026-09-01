@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Smoke Jam - escolha sua pod e personalize seus modelos.">
+
+    <title>Smoke Jam</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header__container">
+
+            <a href="index.html" class="header__logo" aria-label="Página inicial">
+                Smoke
+            </a>
+
+            <button type="button" class="header__lock" aria-label="Área de acesso" title="Área de acesso">
+                <svg class="header__lock-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M7 10V7a5 5 0 0 1 10 0v3" />
+                    <rect x="5" y="10" width="14" height="11" rx="2" />
+                    <circle cx="12" cy="15.5" r="1" />
+                    <path d="M12 16.5V18" />
+                </svg>
+            </button>
+
+        </div>
+    </header>
+
+    <main class="main">
+
+        <section class="hero" aria-labelledby="hero-title">
+
+            <div class="hero__content">
+
+                <h1 id="hero-title" class="hero__title">
+                    Jam
+                </h1>
+
+            </div>
+
+            <div class="hero__image-wrapper">
+                <img class="hero__image" src="assets/images/pod-destaque.jpg" alt="pod_image">
+            </div>
+
+        </section>
+
+        <section class="pods" aria-labelledby="pods-title">
+
+    <div class="section-header">
+        <div>
+
+            <h2
+                id="pods-title"
+                class="section-header__title"
+            >
+                Escolha sua marca
+            </h2>
+
+        </div>
+    </div>
+
+
+    <div
+        id="brands-grid"
+        class="pod-grid"
+    >
+
+        <p id="brands-loading">
+            Carregando marcas...
+        </p>
+
+    </div>
+
+</section>
+
+    </main>
+
+    <footer class="footer">
+        <p class="footer__text">
+            Smoke Jam
+        </p>
+    </footer>
+
+    <script src="js/script.js"></script>
+
+    <script
+    type="module"
+    src="js/index.js"
+></script>
+
+</body>
+
+</html>
