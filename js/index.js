@@ -8,17 +8,17 @@ async function carregarMarcas() {
     try {
 
         const { data, error } = await supabase
-            .from("brands")
-            .select("id, name, active")
-            .eq("active", true)
-            .order("id", {
-                ascending: true
-            });
-
-
-        if (error) {
-            throw error;
-        }
+    .from("brands")
+    .select(`
+        id,
+        name,
+        active,
+        sort_order
+    `)
+    .eq("active", true)
+    .order("sort_order", {
+        ascending: true
+    });
 
 
         brandsGrid.innerHTML = "";
