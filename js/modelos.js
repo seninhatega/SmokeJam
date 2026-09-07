@@ -850,10 +850,9 @@ if (flavorForm) {
 
             event.preventDefault();
 
-
-            // --------------------------------------------------
+            // ==========================================
             // VERIFICAR MODELO
-            // --------------------------------------------------
+            // ==========================================
 
             if (!modeloSelecionado) {
 
@@ -862,13 +861,12 @@ if (flavorForm) {
                 );
 
                 return;
-
             }
 
 
-            // --------------------------------------------------
+            // ==========================================
             // SABORES SELECIONADOS
-            // --------------------------------------------------
+            // ==========================================
 
             const selecionados =
                 Array.from(
@@ -878,46 +876,36 @@ if (flavorForm) {
                 );
 
 
-            // --------------------------------------------------
-            // NENHUM SABOR
-            // --------------------------------------------------
+            // ==========================================
+            // VERIFICAR SABORES
+            // ==========================================
 
-            if (
-                selecionados.length === 0
-            ) {
+            if (selecionados.length === 0) {
 
                 alert(
                     "Selecione pelo menos um sabor."
                 );
 
                 return;
-
             }
 
 
-            // --------------------------------------------------
-            // CRIAR ARRAY
-            // --------------------------------------------------
+            // ==========================================
+            // PEGAR SABORES
+            // ==========================================
 
             const sabores =
                 selecionados.map(
                     input => ({
-
-                        id:
-                            Number(
-                                input.value
-                            ),
-
-                        name:
-                            input.dataset.flavorName
-
+                        id: Number(input.value),
+                        name: input.dataset.flavorName
                     })
                 );
 
 
-            // --------------------------------------------------
-            // OBJETO FINAL
-            // --------------------------------------------------
+            // ==========================================
+            // PEDIDO
+            // ==========================================
 
             const escolha = {
 
@@ -940,42 +928,121 @@ if (flavorForm) {
             };
 
 
-            // --------------------------------------------------
-            // SALVAR
-            // --------------------------------------------------
+            // ==========================================
+            // SALVAR NO NAVEGADOR
+            // ==========================================
 
             sessionStorage.setItem(
                 "productSelection",
-                JSON.stringify(
-                    escolha
-                )
+                JSON.stringify(escolha)
             );
 
 
-            // --------------------------------------------------
-            // CONSOLE
-            // --------------------------------------------------
+            // ==========================================
+            // MONTAR PEDIDO
+            // ==========================================
 
-            console.log(
-                "================================="
+            let mensagem =
+                "🛒 *NOVO PEDIDO — SMOKE JAM*";
+
+            mensagem += "\n\n";
+
+            mensagem +=
+                "*Modelo:* " +
+                modeloSelecionado.name;
+
+            mensagem += "\n\n";
+
+            mensagem +=
+                "*Sabores escolhidos:*";
+
+            mensagem += "\n";
+
+
+            sabores.forEach(
+                function (sabor, index) {
+
+                    mensagem +=
+                        "• " +
+                        sabor.name;
+
+                    if (
+                        index <
+                        sabores.length - 1
+                    ) {
+
+                        mensagem += "\n";
+
+                    }
+
+                }
             );
 
-            console.log(
-                "ESCOLHA FINAL:"
+
+            mensagem += "\n\n";
+
+            mensagem +=
+                "*Quantidade de sabores:* " +
+                sabores.length;
+
+
+            mensagem += "\n\n";
+
+            mensagem +=
+                "Gostaria de confirmar este pedido.";
+
+
+            // ==========================================
+            // NÚMERO DO WHATSAPP
+            // ==========================================
+
+            /*
+                COLOQUE AQUI O NÚMERO DA LOJA.
+
+                Formato:
+
+                55 + DDD + número
+
+                Exemplo fictício:
+                5511999999999
+
+                NÃO use:
+                +
+                espaços
+                parênteses
+                hífen
+            */
+
+            const numeroWhatsApp =
+                "5519993905054";
+
+
+            // ==========================================
+            // CRIAR LINK
+            // ==========================================
+
+            const urlWhatsApp =
+                "https://wa.me/" +
+                numeroWhatsApp +
+                "?text=" +
+                encodeURIComponent(
+                    mensagem
+                );
+
+
+            // ==========================================
+            // ABRIR WHATSAPP
+            // ==========================================
+
+            window.open(
+                urlWhatsApp,
+                "_blank"
             );
 
-            console.log(
-                escolha
-            );
 
-            console.log(
-                "================================="
-            );
-
-
-            // --------------------------------------------------
-            // FECHAR
-            // --------------------------------------------------
+            // ==========================================
+            // FECHAR MODAL
+            // ==========================================
 
             fecharModal();
 
