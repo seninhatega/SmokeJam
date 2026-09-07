@@ -5,11 +5,9 @@ import { supabase } from "./supabase.js";
 // ELEMENTOS DO HTML
 // ======================================================
 
-const modelsGrid =
-    document.getElementById("models-grid");
+const modelsGrid = document.getElementById("models-grid");
 
-const flavorModal =
-    document.getElementById("flavor-modal");
+const flavorModal = document.getElementById("flavor-modal");
 
 const closeFlavorModal =
     document.getElementById("close-flavor-modal");
@@ -28,24 +26,34 @@ const flavorModalProduct =
 
 
 // ======================================================
-// PEGAR BRAND_ID DA URL
+// MARCA SELECIONADA
 // ======================================================
 
-const params =
-    new URLSearchParams(window.location.search);
+const params = new URLSearchParams(
+    window.location.search
+);
 
-const brandId =
-    params.get("brand_id");
-
-
-console.log("Brand ID:", brandId);
+const brandId = params.get("brand_id");
 
 
 // ======================================================
-// VARIÁVEL DO MODELO ATUAL
+// MODELO SELECIONADO
 // ======================================================
 
 let modeloSelecionado = null;
+
+
+// ======================================================
+// VERIFICAÇÃO INICIAL
+// ======================================================
+
+console.log("=================================");
+console.log("PÁGINA DE MODELOS");
+console.log("Brand ID:", brandId);
+console.log("Models Grid:", modelsGrid);
+console.log("Flavor Modal:", flavorModal);
+console.log("Flavors Grid:", flavorsGrid);
+console.log("=================================");
 
 
 // ======================================================
@@ -54,23 +62,23 @@ let modeloSelecionado = null;
 
 async function carregarModelos() {
 
-    // ------------------------------------------
-    // VERIFICAR ELEMENTO
-    // ------------------------------------------
+    // --------------------------------------------------
+    // VERIFICAR GRID
+    // --------------------------------------------------
 
     if (!modelsGrid) {
 
         console.error(
-            "Elemento #models-grid não encontrado."
+            "ERRO: #models-grid não foi encontrado."
         );
 
         return;
     }
 
 
-    // ------------------------------------------
+    // --------------------------------------------------
     // VERIFICAR BRAND ID
-    // ------------------------------------------
+    // --------------------------------------------------
 
     if (!brandId) {
 
@@ -80,8 +88,23 @@ async function carregarModelos() {
             </p>
         `;
 
+        console.error(
+            "ERRO: nenhum brand_id foi encontrado na URL."
+        );
+
         return;
     }
+
+
+    // --------------------------------------------------
+    // LOADING
+    // --------------------------------------------------
+
+    modelsGrid.innerHTML = `
+        <p>
+            Carregando modelos...
+        </p>
+    `;
 
 
     try {
@@ -92,11 +115,14 @@ async function carregarModelos() {
         );
 
 
-        // --------------------------------------
-        // CONSULTA AO SUPABASE
-        // --------------------------------------
+        // --------------------------------------------------
+        // BUSCAR MODELOS
+        // --------------------------------------------------
 
-        const { data, error } = await supabase
+        const {
+            data,
+            error
+        } = await supabase
 
             .from("products")
 
@@ -117,19 +143,22 @@ async function carregarModelos() {
                 true
             )
 
-            .order("id", {
-                ascending: true
-            });
+            .order(
+                "id",
+                {
+                    ascending: true
+                }
+            );
 
 
-        // --------------------------------------
-        // VERIFICAR ERRO
-        // --------------------------------------
+        // --------------------------------------------------
+        // ERRO
+        // --------------------------------------------------
 
         if (error) {
 
             console.error(
-                "Erro do Supabase:",
+                "Erro do Supabase ao buscar modelos:",
                 error
             );
 
@@ -143,18 +172,21 @@ async function carregarModelos() {
         );
 
 
-        // --------------------------------------
-        // LIMPAR LOADING
-        // --------------------------------------
+        // --------------------------------------------------
+        // LIMPAR GRID
+        // --------------------------------------------------
 
         modelsGrid.innerHTML = "";
 
 
-        // --------------------------------------
+        // --------------------------------------------------
         // NENHUM MODELO
-        // --------------------------------------
+        // --------------------------------------------------
 
-        if (!data || data.length === 0) {
+        if (
+            !data ||
+            data.length === 0
+        ) {
 
             modelsGrid.innerHTML = `
                 <p>
@@ -167,84 +199,99 @@ async function carregarModelos() {
         }
 
 
-        // --------------------------------------
+        // --------------------------------------------------
         // CRIAR CARDS
-        // --------------------------------------
+        // --------------------------------------------------
 
-        data.forEach(modelo => {
+        data.forEach(
+            modelo => {
 
-            const card =
-                document.createElement("button");
-
-
-            // Tipo do botão
-
-            card.type = "button";
+                const card =
+                    document.createElement("button");
 
 
-            // Classes
+                // --------------------------------------------------
+                // TIPO
+                // --------------------------------------------------
 
-            card.className =
-                "pod-card model-card";
-
-
-            // ID do produto
-
-            card.dataset.productId =
-                modelo.id;
+                card.type = "button";
 
 
-            // Nome do produto
+                // --------------------------------------------------
+                // CLASSE
+                // --------------------------------------------------
 
-            card.dataset.productName =
-                modelo.name;
-
-
-            // ----------------------------------
-            // CONTEÚDO DO CARD
-            // ----------------------------------
-
-            card.innerHTML = `
-
-                <div class="pod-card__content">
-
-                    <h3 class="pod-card__title">
-                        ${modelo.name}
-                    </h3>
-
-                    <span class="pod-card__action">
-                        Escolher modelo
-                    </span>
-
-                </div>
-
-            `;
+                card.className =
+                    "pod-card model-card";
 
 
-            // ----------------------------------
-            // CLIQUE NO MODELO
-            // ----------------------------------
+                // --------------------------------------------------
+                // IDs
+                // --------------------------------------------------
 
-            card.addEventListener(
-                "click",
-                () => {
-
-                    abrirModalSabores(
-                        modelo.id,
-                        modelo.name
-                    );
-
-                }
-            );
+                card.dataset.productId =
+                    modelo.id;
 
 
-            // ----------------------------------
-            // ADICIONAR À PÁGINA
-            // ----------------------------------
+                card.dataset.productName =
+                    modelo.name;
 
-            modelsGrid.appendChild(card);
 
-        });
+                // --------------------------------------------------
+                // HTML DO CARD
+                // --------------------------------------------------
+
+                card.innerHTML = `
+
+                    <div class="pod-card__content">
+
+                        <h3 class="pod-card__title">
+                            ${modelo.name}
+                        </h3>
+
+                        <span class="pod-card__action">
+                            Escolher modelo
+                        </span>
+
+                    </div>
+
+                `;
+
+
+                // --------------------------------------------------
+                // CLIQUE
+                // --------------------------------------------------
+
+                card.addEventListener(
+                    "click",
+                    function () {
+
+                        console.log(
+                            "Modelo clicado:",
+                            modelo.id,
+                            modelo.name
+                        );
+
+
+                        abrirModalSabores(
+                            modelo.id,
+                            modelo.name
+                        );
+
+                    }
+                );
+
+
+                // --------------------------------------------------
+                // ADICIONAR
+                // --------------------------------------------------
+
+                modelsGrid.appendChild(
+                    card
+                );
+
+            }
+        );
 
 
     } catch (error) {
@@ -257,7 +304,8 @@ async function carregarModelos() {
 
         modelsGrid.innerHTML = `
             <p>
-                Não foi possível carregar os modelos.
+                Não foi possível carregar
+                os modelos.
             </p>
         `;
 
@@ -267,7 +315,7 @@ async function carregarModelos() {
 
 
 // ======================================================
-// ABRIR MODAL DE SABORES
+// ABRIR MODAL
 // ======================================================
 
 async function abrirModalSabores(
@@ -276,15 +324,15 @@ async function abrirModalSabores(
 ) {
 
     console.log(
-        "Modelo selecionado:",
+        "Abrindo modal:",
         productId,
         productName
     );
 
 
-    // ------------------------------------------
-    // SALVAR MODELO ATUAL
-    // ------------------------------------------
+    // --------------------------------------------------
+    // SALVAR MODELO
+    // --------------------------------------------------
 
     modeloSelecionado = {
 
@@ -295,9 +343,9 @@ async function abrirModalSabores(
     };
 
 
-    // ------------------------------------------
-    // ALTERAR TEXTO DO MODAL
-    // ------------------------------------------
+    // --------------------------------------------------
+    // NOME DO MODELO NO MODAL
+    // --------------------------------------------------
 
     if (flavorModalProduct) {
 
@@ -307,9 +355,9 @@ async function abrirModalSabores(
     }
 
 
-    // ------------------------------------------
+    // --------------------------------------------------
     // LIMPAR SABORES ANTERIORES
-    // ------------------------------------------
+    // --------------------------------------------------
 
     if (flavorsGrid) {
 
@@ -322,23 +370,22 @@ async function abrirModalSabores(
     }
 
 
-    // ------------------------------------------
+    // --------------------------------------------------
     // RESETAR CONTADOR
-    // ------------------------------------------
+    // --------------------------------------------------
 
     atualizarContador();
 
 
-    // ------------------------------------------
+    // --------------------------------------------------
     // ABRIR MODAL
-    // ------------------------------------------
+    // --------------------------------------------------
 
     if (flavorModal) {
 
         flavorModal.classList.add(
             "is-open"
         );
-
 
         flavorModal.setAttribute(
             "aria-hidden",
@@ -348,25 +395,29 @@ async function abrirModalSabores(
     }
 
 
-    // ------------------------------------------
+    // --------------------------------------------------
     // BUSCAR SABORES
-    // ------------------------------------------
+    // --------------------------------------------------
 
-    await carregarSabores(productId);
+    await carregarSabores(
+        productId
+    );
 
 }
 
 
 // ======================================================
-// CARREGAR SABORES
+// BUSCAR SABORES
 // ======================================================
 
-async function carregarSabores(productId) {
+async function carregarSabores(
+    productId
+) {
 
     if (!flavorsGrid) {
 
         console.error(
-            "Elemento #flavors-grid não encontrado."
+            "ERRO: #flavors-grid não existe."
         );
 
         return;
@@ -376,29 +427,26 @@ async function carregarSabores(productId) {
     try {
 
         console.log(
-            "Buscando sabores do produto:",
+            "Buscando relações do produto:",
             productId
         );
 
 
-        // --------------------------------------
-        // CONSULTAR PRODUCT_FLAVORS
-        // --------------------------------------
+        // ==================================================
+        // PRIMEIRO PASSO
+        // Buscar os IDs dos sabores
+        // ==================================================
 
-        const { data, error } = await supabase
+        const {
+            data: relacionamentos,
+            error: relacionamentoError
+        } = await supabase
 
             .from("product_flavors")
 
-            .select(`
-                flavor_id,
-                flavors (
-                    id,
-                    name,
-                    value,
-                    active,
-                    sort_order
-                )
-            `)
+            .select(
+                "product_id, flavor_id"
+            )
 
             .eq(
                 "product_id",
@@ -406,39 +454,35 @@ async function carregarSabores(productId) {
             );
 
 
-        // --------------------------------------
+        // --------------------------------------------------
         // VERIFICAR ERRO
-        // --------------------------------------
+        // --------------------------------------------------
 
-        if (error) {
+        if (relacionamentoError) {
 
             console.error(
-                "Erro ao buscar sabores:",
-                error
+                "Erro em product_flavors:",
+                relacionamentoError
             );
 
-            throw error;
+            throw relacionamentoError;
         }
 
 
         console.log(
-            "Sabores encontrados:",
-            data
+            "Relacionamentos encontrados:",
+            relacionamentos
         );
 
 
-        // --------------------------------------
-        // LIMPAR LOADING
-        // --------------------------------------
+        // --------------------------------------------------
+        // NENHUMA RELAÇÃO
+        // --------------------------------------------------
 
-        flavorsGrid.innerHTML = "";
-
-
-        // --------------------------------------
-        // NENHUM SABOR
-        // --------------------------------------
-
-        if (!data || data.length === 0) {
+        if (
+            !relacionamentos ||
+            relacionamentos.length === 0
+        ) {
 
             flavorsGrid.innerHTML = `
                 <p>
@@ -451,114 +495,197 @@ async function carregarSabores(productId) {
         }
 
 
-        // --------------------------------------
-        // CRIAR CARDS
-        // --------------------------------------
+        // ==================================================
+        // PEGAR OS IDs
+        // ==================================================
 
-        data.forEach(item => {
-
-            const sabor =
-                item.flavors;
-
-
-            // Se não encontrou o sabor
-
-            if (!sabor) {
-                return;
-            }
+        const flavorIds =
+            relacionamentos.map(
+                item => item.flavor_id
+            );
 
 
-            // Se sabor está inativo
-
-            if (!sabor.active) {
-                return;
-            }
-
-
-            // ----------------------------------
-            // LABEL
-            // ----------------------------------
-
-            const card =
-                document.createElement("label");
+        console.log(
+            "IDs dos sabores:",
+            flavorIds
+        );
 
 
-            card.className =
-                "pod-card flavor-card";
+        // ==================================================
+        // SEGUNDO PASSO
+        // Buscar sabores na tabela flavors
+        // ==================================================
 
+        const {
+            data: sabores,
+            error: saboresError
+        } = await supabase
 
-            // ----------------------------------
-            // HTML
-            // ----------------------------------
+            .from("flavors")
 
-            card.innerHTML = `
+            .select(`
+                id,
+                name,
+                value,
+                active,
+                sort_order
+            `)
 
-                <input
-                    type="checkbox"
-                    name="flavor"
-                    value="${sabor.id}"
-                    data-flavor-name="${sabor.name}"
-                    hidden
-                >
+            .in(
+                "id",
+                flavorIds
+            )
 
-                <div class="pod-card__content">
-
-                    <h3 class="pod-card__title">
-                        ${sabor.name}
-                    </h3>
-
-                    <span class="pod-card__action">
-                        Selecionar
-                    </span>
-
-                </div>
-
-            `;
-
-
-            // ----------------------------------
-            // INPUT
-            // ----------------------------------
-
-            const input =
-                card.querySelector(
-                    'input[name="flavor"]'
-                );
-
-
-            // ----------------------------------
-            // SELEÇÃO
-            // ----------------------------------
-
-            input.addEventListener(
-                "change",
-                () => {
-
-                    card.classList.toggle(
-                        "is-selected",
-                        input.checked
-                    );
-
-
-                    atualizarContador();
-
+            .order(
+                "sort_order",
+                {
+                    ascending: true
                 }
             );
 
 
-            // ----------------------------------
-            // ADICIONAR CARD
-            // ----------------------------------
+        // --------------------------------------------------
+        // VERIFICAR ERRO
+        // --------------------------------------------------
 
-            flavorsGrid.appendChild(card);
+        if (saboresError) {
 
-        });
+            console.error(
+                "Erro na tabela flavors:",
+                saboresError
+            );
+
+            throw saboresError;
+        }
+
+
+        console.log(
+            "Sabores encontrados:",
+            sabores
+        );
+
+
+        // --------------------------------------------------
+        // LIMPAR
+        // --------------------------------------------------
+
+        flavorsGrid.innerHTML = "";
+
+
+        // --------------------------------------------------
+        // NENHUM SABOR
+        // --------------------------------------------------
+
+        if (
+            !sabores ||
+            sabores.length === 0
+        ) {
+
+            flavorsGrid.innerHTML = `
+                <p>
+                    Nenhum sabor disponível
+                    para este modelo.
+                </p>
+            `;
+
+            return;
+        }
+
+
+        // ==================================================
+        // CRIAR CARDS
+        // ==================================================
+
+        sabores.forEach(
+            sabor => {
+
+                // --------------------------------------------------
+                // LABEL
+                // --------------------------------------------------
+
+                const card =
+                    document.createElement("label");
+
+
+                card.className =
+                    "pod-card flavor-card";
+
+
+                // --------------------------------------------------
+                // HTML
+                // --------------------------------------------------
+
+                card.innerHTML = `
+
+                    <input
+                        type="checkbox"
+                        name="flavor"
+                        value="${sabor.id}"
+                        data-flavor-name="${sabor.name}"
+                        hidden
+                    >
+
+                    <div class="pod-card__content">
+
+                        <h3 class="pod-card__title">
+                            ${sabor.name}
+                        </h3>
+
+                        <span class="pod-card__action">
+                            Selecionar
+                        </span>
+
+                    </div>
+
+                `;
+
+
+                // --------------------------------------------------
+                // INPUT
+                // --------------------------------------------------
+
+                const input =
+                    card.querySelector(
+                        'input[name="flavor"]'
+                    );
+
+
+                // --------------------------------------------------
+                // SELEÇÃO
+                // --------------------------------------------------
+
+                input.addEventListener(
+                    "change",
+                    function () {
+
+                        card.classList.toggle(
+                            "is-selected",
+                            input.checked
+                        );
+
+
+                        atualizarContador();
+
+                    }
+                );
+
+
+                // --------------------------------------------------
+                // ADICIONAR
+                // --------------------------------------------------
+
+                flavorsGrid.appendChild(
+                    card
+                );
+
+            }
+        );
 
 
     } catch (error) {
 
         console.error(
-            "Não foi possível carregar os sabores:",
+            "Erro ao carregar sabores:",
             error
         );
 
@@ -576,13 +703,18 @@ async function carregarSabores(productId) {
 
 
 // ======================================================
-// CONTADOR
+// ATUALIZAR CONTADOR
 // ======================================================
 
 function atualizarContador() {
 
-    if (!flavorForm || !flavorCounter) {
+    if (
+        !flavorForm ||
+        !flavorCounter
+    ) {
+
         return;
+
     }
 
 
@@ -596,14 +728,18 @@ function atualizarContador() {
         selecionados.length;
 
 
-    if (quantidade === 0) {
+    if (
+        quantidade === 0
+    ) {
 
         flavorCounter.textContent =
             "0 sabores selecionados";
 
     }
 
-    else if (quantidade === 1) {
+    else if (
+        quantidade === 1
+    ) {
 
         flavorCounter.textContent =
             "1 sabor selecionado";
@@ -641,44 +777,11 @@ function fecharModal() {
         "true"
     );
 
-
-    // Limpar seleção
-
-    if (flavorForm) {
-
-        flavorForm.reset();
-
-    }
-
-
-    // Remover estado visual
-
-    if (flavorsGrid) {
-
-        const cards =
-            flavorsGrid.querySelectorAll(
-                ".flavor-card"
-            );
-
-
-        cards.forEach(card => {
-
-            card.classList.remove(
-                "is-selected"
-            );
-
-        });
-
-    }
-
-
-    atualizarContador();
-
 }
 
 
 // ======================================================
-// BOTÃO FECHAR
+// BOTÃO X
 // ======================================================
 
 if (closeFlavorModal) {
@@ -692,7 +795,7 @@ if (closeFlavorModal) {
 
 
 // ======================================================
-// FECHAR CLICANDO NO OVERLAY
+// OVERLAY
 // ======================================================
 
 const modalOverlay =
@@ -712,12 +815,12 @@ if (modalOverlay) {
 
 
 // ======================================================
-// FECHAR COM ESC
+// ESC
 // ======================================================
 
 document.addEventListener(
     "keydown",
-    event => {
+    function (event) {
 
         if (
             event.key === "Escape" &&
@@ -743,19 +846,19 @@ if (flavorForm) {
 
     flavorForm.addEventListener(
         "submit",
-        event => {
+        function (event) {
 
             event.preventDefault();
 
 
-            // ----------------------------------
+            // --------------------------------------------------
             // VERIFICAR MODELO
-            // ----------------------------------
+            // --------------------------------------------------
 
             if (!modeloSelecionado) {
 
                 console.error(
-                    "Nenhum modelo foi selecionado."
+                    "Nenhum modelo selecionado."
                 );
 
                 return;
@@ -763,9 +866,9 @@ if (flavorForm) {
             }
 
 
-            // ----------------------------------
-            // PEGAR SABORES
-            // ----------------------------------
+            // --------------------------------------------------
+            // SABORES SELECIONADOS
+            // --------------------------------------------------
 
             const selecionados =
                 Array.from(
@@ -775,9 +878,9 @@ if (flavorForm) {
                 );
 
 
-            // ----------------------------------
+            // --------------------------------------------------
             // NENHUM SABOR
-            // ----------------------------------
+            // --------------------------------------------------
 
             if (
                 selecionados.length === 0
@@ -792,25 +895,29 @@ if (flavorForm) {
             }
 
 
-            // ----------------------------------
-            // TRANSFORMAR EM OBJETO
-            // ----------------------------------
+            // --------------------------------------------------
+            // CRIAR ARRAY
+            // --------------------------------------------------
 
             const sabores =
-                selecionados.map(input => ({
+                selecionados.map(
+                    input => ({
 
-                    id:
-                        input.value,
+                        id:
+                            Number(
+                                input.value
+                            ),
 
-                    name:
-                        input.dataset.flavorName
+                        name:
+                            input.dataset.flavorName
 
-                }));
+                    })
+                );
 
 
-            // ----------------------------------
-            // DADOS DA ESCOLHA
-            // ----------------------------------
+            // --------------------------------------------------
+            // OBJETO FINAL
+            // --------------------------------------------------
 
             const escolha = {
 
@@ -833,29 +940,42 @@ if (flavorForm) {
             };
 
 
-            // ----------------------------------
+            // --------------------------------------------------
             // SALVAR
-            // ----------------------------------
+            // --------------------------------------------------
 
             sessionStorage.setItem(
                 "productSelection",
-                JSON.stringify(escolha)
+                JSON.stringify(
+                    escolha
+                )
             );
 
 
-            // ----------------------------------
-            // DEBUG
-            // ----------------------------------
+            // --------------------------------------------------
+            // CONSOLE
+            // --------------------------------------------------
 
             console.log(
-                "Escolha salva:",
+                "================================="
+            );
+
+            console.log(
+                "ESCOLHA FINAL:"
+            );
+
+            console.log(
                 escolha
             );
 
+            console.log(
+                "================================="
+            );
 
-            // ----------------------------------
+
+            // --------------------------------------------------
             // FECHAR
-            // ----------------------------------
+            // --------------------------------------------------
 
             fecharModal();
 
@@ -866,7 +986,7 @@ if (flavorForm) {
 
 
 // ======================================================
-// INICIAR PÁGINA
+// INICIAR
 // ======================================================
 
 carregarModelos();
